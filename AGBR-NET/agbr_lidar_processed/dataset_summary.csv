@@ -1,0 +1,6 @@
+scene,scan_count,duration_s,approx_scan_rate_hz,min_rays_per_scan,max_rays_per_scan,angle_min_deg,angle_max_deg,range_min_m,range_max_m,frame_id,median_forward_range_within_10deg_m
+scene_01,175,14.906,11.673,427,429,-180.0,180.0,0.12,10.0,laser_frame,6.194
+scene_02,157,13.34,11.694,426,429,-180.0,180.0,0.12,10.0,laser_frame,6.203
+scene_03,141,11.972,11.694,426,429,-180.0,180.0,0.12,10.0,laser_frame,6.196
+scene_04,134,11.362,11.705,425,428,-180.0,180.0,0.12,10.0,laser_frame,6.203
+scene_05,149,12.641,11.708,425,428,-180.0,180.0,0.12,10.0,laser_frame,6.203
