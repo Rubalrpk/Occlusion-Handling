@@ -1,4 +1,4 @@
-﻿models/
+models/
 datasets/
 outputs/
 gan_checkpoints/
@@ -16,3 +16,5 @@ env/
 Thumbs.db
 .ipynb_checkpoints/
 *.log
+AGBR-NET/models/midas/midas_v21_small_256.onnx
+AGBR-NET/models/u2net/u2net.onnx

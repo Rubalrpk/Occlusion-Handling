@@ -1,0 +1,383 @@
+	dilation	context	mean_raw_low_pct	mean_selected_pct	median_selected_pct	mean_num_regions	mean_largest_box_pct	runaway_gt50_pct	runaway_gt75_pct	runaway_gt90_pct
+0	0	0	11.81	30.27	14.98	2.58	25.56	21.97	16.18	10.40
+1	0	2	11.81	31.84	16.97	2.58	26.31	23.12	16.18	10.40
+2	0	4	11.81	33.44	19.04	2.58	27.07	23.70	16.18	10.40
+3	2	0	11.81	33.20	17.42	2.98	27.48	24.28	16.76	11.56
+4	2	2	11.81	34.85	19.66	2.98	28.23	24.86	16.76	11.56
+5	2	4	11.81	36.54	21.87	2.98	29.00	26.01	17.34	11.56
+6	3	0	11.81	35.22	18.70	3.01	29.19	26.59	19.08	12.14
+7	3	2	11.81	36.89	20.99	3.01	29.95	27.17	20.23	12.14
+8	3	4	11.81	38.59	23.23	3.01	30.72	28.32	20.81	13.29
+9	5	0	11.81	38.92	22.17	3.05	32.31	30.64	21.97	13.29
+10	5	2	11.81	40.59	24.22	3.05	33.05	31.79	22.54	16.18
+11	5	4	11.81	42.29	26.57	3.05	33.81	32.37	23.12	16.18
+
+| Strategy  | Mean GAN box coverage | Low-confidence recall | Box precision | >50% runaway |
+| --------- | --------------------: | --------------------: | ------------: | -----------: |
+| LOW only  |                30.47% |                 99.5% |         47.1% |    **22.0%** |
+| LOW + P85 |             **7.85%** |                 40.5% |         70.6% |         4.0% |
+| LOW + P90 |             **6.43%** |                 31.6% |         71.6% |         3.5% |
+| LOW + P95 |             **3.86%** |                 18.2% |         73.0% |     **1.7%** |
+
+| Metric             |    MiDaS |      AGBR-V2 | Improvement |
+| ------------------ | -------: | -----------: | ----------: |
+| **Refined MAE**    | 0.4871 m | **0.4764 m** |  **+1.78%** |
+| **Refined RMSE**   | 0.5863 m | **0.5761 m** |  **+1.67%** |
+| **Refined AbsRel** |   0.6333 |   **0.6054** |  **+2.69%** |
+
+7 Polycam scenes: A–G
+237 matched RGB + LiDAR-depth + confidence frames
+A–E = development
+F–G = held-out test
+RGB: 1024×768
+LiDAR depth: 256×192
+LiDAR depth used only as external evaluation reference
+
+Current selector
+
+LOW confidence = confidence value 0
+MiDaS depth-gradient P85
+dilation = 0
+context = 0
+min area = 30
+max regions = 8
+
+Held-out F/G
+
+64 frames
+mean refinement coverage = 9.03%
+mean changed pixels = 9.03%
+refined-region MAE: 0.4871 → 0.4764 m (+1.78%)
+refined-region RMSE: 0.5863 → 0.5761 m (+1.67%)
+refined-region AbsRel: 0.6333 → 0.6054 (+2.69%)
+refined MAE improved in 38/64 frames
+median improvement +1.02%
+
+| Metric                |  MiDaS | AGBR-V2 |     Change |
+| --------------------- | -----: | ------: | ---------: |
+| Global MAE            | 0.4877 |  0.4781 | **+1.96%** |
+| Global RMSE           | 0.6089 |  0.6025 | **+1.06%** |
+| Global AbsRel         | 0.5391 |  0.5190 | **+3.72%** |
+| Refined-region MAE    | 0.4261 |  0.4133 | **+2.99%** |
+| Refined-region RMSE   | 0.5444 |  0.5336 | **+1.99%** |
+| Refined-region AbsRel | 0.5494 |  0.5224 | **+4.92%** |
+
+
+| MiDaS boundary |      Area | Low-confidence recall |  Precision |
+| -------------- | --------: | --------------------: | ---------: |
+| P80            |     20.0% |                29.16% |     14.83% |
+| **P85**        | **15.0%** |            **24.53%** | **16.04%** |
+| P90            |     10.0% |                19.08% |     17.88% |
+| P95            |      5.0% |                11.89% |     20.66% |
+
+| Frame | Regions | Selected coverage | Mean GAN change | Max change |
+| ----- | ------: | ----------------: | --------------: | ---------: |
+| F-0   |       4 |             8.17% |           15.14 |      45.38 |
+| F-14  |       8 |             7.60% |            2.84 |      31.76 |
+| G-0   |       2 |             9.28% |           65.46 |     102.18 |
+
+Frame ID : 209187045434 Selected regions : 4 Largest component : 3053 pixels Patch location : (192, 6) Coarse 1% range : 192.022430 Coarse 99% range : 824.606506 GAN input: Shape : (1, 5, 64, 64) Confidence range : 0.606330 → 0.999599 GAN output: Normalized range : 0.000000 → 0.901091 Depth change on selected component: Mean |Δ| : 13.015718 Max |Δ| : 35.189880
+
+5-channel input is correct: (RGB + coarse depth + confidence)
+Confidence is sensible: 0.606 → 0.9996
+GAN is actually producing a bounded normalized depth output: 0 → 0.901
+Refinement is localized to the selected component.
+Mean depth change: 13.02 relative-depth units
+Max change: 35.19 relative-depth units
+Only 4 regions selected, with the largest being 3053 pixels, so we're no longer seeing the absurd 70–90% refinement coverage from the earlier broken selector.
+
+| Metric                | MiDaS baseline |    AGBR V2 |  Change |
+| --------------------- | -------------: | ---------: | ------: |
+| Global MAE            |     0.138798 m | 0.138877 m | −0.058% |
+| Global RMSE           |     0.173686 m | 0.173746 m | −0.034% |
+| Global AbsRel         |       0.184848 |   0.184994 | −0.079% |
+| Refined-region MAE    |     0.145275 m | 0.155722 m |   worse |
+| Refined-region RMSE   |     0.172240 m | 0.181098 m |   worse |
+| Refined-region AbsRel |       0.204763 |   0.230635 |   worse |
+
+
+5-channel input
+   ↓
+enc1: 5 → 32 → 32
+   ↓
+enc2: 32 → 64 → 64
+   ↓
+enc3: 64 → 128 → 128
+   ↓
+bottleneck: 128 → 256 → 256
+   ↓
+upsample + skip(e3)
+dec3: 384 → 128 → 128
+   ↓
+upsample + skip(e2)
+dec2: 192 → 64 → 64
+   ↓
+upsample + skip(e1)
+dec1: 96 → 32 → 32
+   ↓
+residual head: 32 → 16 → 1
+
+Checkpoint             : agbr_v2_best.pt
+Best epoch             : 22
+Validation L1          : 0.0126996
+Architecture           : ResidualBoundaryGeneratorV2
+Input                  : 5 channels
+Patch size             : 64×64
+Parameters             : 1,955,009
+Weights loaded         : 100%
+Forward pass           : PASS
+Output                 : 1×1×64×64
+Output finite          : YES
+Output range           : 0–0.972
+
+======================================================================
+LOCAL MiDaS ↔ LiDAR ALIGNMENT TEST
+======================================================================
+
+PATCH STATISTICS
+----------------------------------------------------------------------
+MiDaS:
+ min : 316.2750244140625
+ max : 390.3836975097656
+ mean: 353.85272477567196
+
+Inverse LiDAR:
+ min : 1.205545425415039
+ max : 1.3118786811828613
+ mean: 1.258300873596454
+
+LOCAL ALIGNMENT
+----------------------------------------------------------------------
+scale: 785.7759595419284
+shift: -634.8721917444815
+
+ALIGNED LiDAR
+----------------------------------------------------------------------
+min : 312.4164216824031
+max : 395.97053776458085
+mean: 353.87038459821895
+
+MiDaS
+----------------------------------------------------------------------
+min : 316.2750244140625
+max : 390.3836975097656
+mean: 353.85272216796875
+
+LOCAL FIT QUALITY
+----------------------------------------------------------------------
+Correlation: 0.9823699004174956
+RMSE: 3.6744083382236363
+
+======================================================================
+LOCAL SHARED NORMALIZATION
+======================================================================
+
+MiDaS normalized:
+min : 0.0
+max : 1.0
+mean: 0.5107644200325012
+
+Aligned LiDAR normalized:
+min : 0.0
+max : 1.0
+mean: 0.5104512731932564
+non-zero: 3999
+unique values: 1233
+
+======================================================================
+TEST COMPLETE
+======================================================================
+Keep your locked selector unchanged.
+Keep RGB + MiDaS coarse + confidence as the GAN input.
+Use Polycam LiDAR only as the external supervision/reference.
+For each selected 64×64 patch:
+convert LiDAR depth → inverse depth
+locally align inverse LiDAR to MiDaS
+normalize both using the MiDaS patch range
+reject pathological patches if alignment quality is too poor
+F/G remain completely untouched until evaluation.
+
+I would use a conservative quality gate such as correlation ≥ 0.80 for the training patches. That would exclude the weakest patches rather than teaching the GAN from questionable alignment.
+
+And importantly: we are not changing the GAN architecture or checkpoint
+
+| Scene   | Selected | Usable | Usable % |
+| ------- | -------: | -----: | -------: |
+| A       |      309 |    172 |    55.7% |
+| B       |      207 |     88 |    42.5% |
+| C       |      508 |    258 |    50.8% |
+| D       |      158 |     73 |    46.2% |
+| E (val) |      164 |     80 |    48.8% |
+
+| Scene           | Selected regions | Usable patches |
+| --------------- | ---------------: | -------------: |
+| A               |              309 |             40 |
+| B               |              207 |              3 |
+| C               |              508 |             27 |
+| D               |              158 |             15 |
+| **Train total** |        **1,182** |         **85** |
+| E (validation)  |              164 |             11 |
+
+
+| Scene     | Candidate regions | corr≥.80 + unique≥100 | corr≥.75 + unique≥60 |
+| --------- | ----------------: | --------------------: | -------------------: |
+| A         |               309 |                    40 |                  102 |
+| B         |               207 |                     3 |                    3 |
+| C         |               508 |                    27 |                   86 |
+| D         |               158 |                    15 |                   27 |
+| E         |               164 |                    11 |                   52 |
+| **Total** |         **1,346** |                **96** |              **270** |
+
+Split	Scenes	Patches
+TRAIN	A–D	423
+VAL	E	59
+TOTAL	A–E	482
+TEST	F–G	Untouched
+
+And importantly, the quality filtering is behaving as expected:
+
+No alignment failures reported.
+Rejections are coming from the intended correlation and relative-RMSE gates.
+Scene A: 128 usable
+Scene B: 56 usable
+Scene C: 168 usable
+Scene D: 71 usable
+Scene E: 59 usable
+Encoder: enc1 → enc2 → enc3 → bottleneck
+3 encoder stages + bottleneck, not 4 encoder stages.
+Each block is Conv → BatchNorm → ReLU → Conv → BatchNorm → ReLU.
+Decoder: dec3 → dec2 → dec1
+Skip concatenations give 384, 192, and 96 input channels exactly as the checkpoint shows.
+Final head is 32 → 16 → 1.
+No residual skip inside the encoder blocks—the earlier class I gave you incorrectly added one.
+
+
+And evaluate with the metrics we've already been using:
+
+MAE
+RMSE
+AbsRel
+refined-region performance
+unchanged-region performance
+correction direction/correlation diagnostics
+
+| Test scene |                                 MAE |                                RMSE |
+| ---------- | ----------------------------------: | ----------------------------------: |
+| **F**      |     0.117955 → **0.115105** ↓ 2.42% |     0.142112 → **0.138185** ↓ 2.76% |
+| **G**      |     0.123369 → **0.118026** ↓ 4.33% |     0.151310 → **0.144827** ↓ 4.28% |
+| **F + G**  | 0.120914 → **0.116702** ↓ **3.48%** | 0.147139 → **0.141815** ↓ **3.62%** |
+
+| Metric                  | Original V2 | Fine-tuned V2 |          Change |
+| ----------------------- | ----------: | ------------: | --------------: |
+| MAE                     |    0.120914 |  **0.116702** | **3.48% lower** |
+| RMSE                    |    0.147139 |  **0.141815** | **3.62% lower** |
+| Patches improved — MAE  |           — | **338 / 494** |      **68.42%** |
+| Patches improved — RMSE |           — | **382 / 494** |      **77.33%** |
+
+Real-data fine-tuning of the V2 boundary refinement network produced a consistent reduction in normalized depth-refinement error on the held-out F and G scenes under the locked evaluation protocol.
+
+| Metric                | Original V2 |        Fine-tuned V2 |      Change |
+| --------------------- | ----------: | -------------------: | ----------: |
+| MAE                   |    0.120914 |         **0.116702** | **↓ 3.48%** |
+| RMSE                  |    0.147139 |         **0.141815** | **↓ 3.62%** |
+| MAE-improved patches  |           — | **338/494 (68.42%)** |           — |
+| RMSE-improved patches |           — | **382/494 (77.33%)** |           — |
+
+| Scene     |  MAE change | RMSE change |
+| --------- | ----------: | ----------: |
+| F         |     ↓ 2.42% |     ↓ 2.76% |
+| G         |     ↓ 4.33% |     ↓ 4.28% |
+| **F + G** | **↓ 3.48%** | **↓ 3.62%** |
+
+==========================================================================================
+FINAL HELD-OUT F/G QUANTITATIVE RESULTS
+==========================================================================================
+
+Scene      Patches      Orig MAE        FT MAE       MAE Δ     Orig RMSE       FT RMSE      RMSE Δ
+------------------------------------------------------------------------------------------
+F              224      0.117955      0.115105      -2.42%      0.142112      0.138185      -2.76%
+G              270      0.123369      0.118026      -4.33%      0.151310      0.144827      -4.28%
+F+G            494      0.120914      0.116702      -3.48%      0.147139      0.141815      -3.62%
+
+==========================================================================================
+PATCH-LEVEL CONSISTENCY
+==========================================================================================
+MAE improved : 338/494 (68.42%)
+RMSE improved: 382/494 (77.33%)
+
+==========================================================================================
+FILES SAVED
+==========================================================================================
+
+Scene summary:
+/content/drive/MyDrive/AGBR/evaluation/FINAL_FG_QUANTITATIVE_RESULTS.csv
+
+Patch-level results:
+/content/drive/MyDrive/AGBR/evaluation/FINAL_FG_PATCH_RESULTS.csv
+
+✓ Quantitative results exported.
+✓ No model inference was rerun.
+✓ No F/G source data was modified.
+
+| System    | RGB | LiDAR | Depth source                   |
+| --------- | --- | ----- | ------------------------------ |
+| Baseline  | ✓   | ✓     | LiDAR                          |
+| Proposed  | ✓   | ✗     | AGBR-Net                       |
+| Reference | ✓   | ✓     | LiDAR used only for evaluation |
+
+                    ┌─────────────────┐
+                    │   RGB CAMERA    │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │  COMPUTE UNIT   │
+                    │ Raspberry Pi /  │
+                    │ Jetson / Laptop │
+                    └────────┬────────┘
+                             │
+                             ▼
+                     ┌──────────────┐
+                     │    MiDaS     │
+                     │ Depth        │
+                     └──────┬───────┘
+                            ▼
+                     ┌──────────────┐
+                     │ Confidence   │
+                     │ Estimation   │
+                     └──────┬───────┘
+                            ▼
+                     ┌──────────────┐
+                     │ Adaptive     │
+                     │ Selection    │
+                     └──────┬───────┘
+                            ▼
+                     ┌──────────────┐
+                     │ Boundary     │
+                     │ Refinement   │
+                     │ GAN          │
+                     └──────┬───────┘
+                            ▼
+                     ┌──────────────┐
+                     │ Refined      │
+                     │ Depth Map    │
+                     └──────┬───────┘
+                            │
+                    obstacle information
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │ Navigation / │
+                     │ Decision     │
+                     └──────┬───────┘
+                            │
+                       movement cmd
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │ ATmega328P   │
+                     │ RoboCar      │
+                     └──────┬───────┘
+                            ▼
+                         MOTORS
+
